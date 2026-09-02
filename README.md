@@ -94,6 +94,38 @@ flutter run
 
 ---
 
+## 🤖 Machine Learning Algorithms: Asymmetric XGBoost
+
+The predictive engine uses **XGBoost** (Extreme Gradient Boosting), chosen for its high accuracy on tabular physiological data and native support for SHAP explainability. To ensure patient safety, we designed a **custom asymmetric logistic loss function**.
+
+### The Custom Asymmetric Objective
+In clinical triage, False Negatives (undertriage of a critical patient) are significantly more dangerous than False Positives (overtriage). Our custom objective function mathematically forces the model to heavily penalize False Negatives using a scaling factor, $\alpha$:
+
+> $$ \text{Gradient} = p \cdot (\alpha \cdot y + \beta \cdot (1 - y)) - \alpha \cdot y $$
+> $$ \text{Hessian} = p \cdot (1 - p) \cdot (\alpha \cdot y + \beta \cdot (1 - y)) $$
+
+### Demographic-Calibrated Models
+Instead of a single generalized model, the architecture routes patients to one of three age-stratified XGBoost agents, each calibrated with a unique $\alpha$ penalty and feature set:
+
+1. **Geriatric Agent (Age 65+)**
+   - **Penalty ($\alpha$)**: `23.0`
+   - **Features**: Vital signs, comorbidities, prior history, and importantly, the **Clinical Frailty Scale (CFS)** score.
+   - **Rationale**: Elderly patients often present atypically. A high penalty and frailty tracking suppress undertriage.
+
+2. **Adult Agent (Age 18-64)**
+   - **Penalty ($\alpha$)**: `18.0`
+   - **Features**: Standard ED physiological vitals and history.
+   - **Rationale**: Balances acute derangement detection against resource-wasting overtriage.
+
+3. **Pediatric Agent (Age <18)**
+   - **Penalty ($\alpha$)**: `28.0`
+   - **Features**: Continuous age, vitals, and history.
+   - **Rationale**: Pediatric vitals change rapidly and have different baselines depending on age. Carries the highest penalty multiplier due to rapid decompensation risks.
+
+*(Hyperparameters: `max_depth=4` for shallow, highly interpretable trees; `learning_rate=0.01` to prevent overfitting; `threshold=0.504`)*
+
+---
+
 ## 🧠 Technical Deep Dive: The Priority Scheduler
 
 To prevent patient starvation (where lower-acuity patients wait indefinitely), our Stage 2 Priority Scheduler recalculates positions continuously using a time-decaying logarithmic function:
