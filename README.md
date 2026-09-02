@@ -1,154 +1,137 @@
-# 🏥 PatientTriage.ai
-> **Accenture Innovation Challenge 2026 – Problem Track 2**  
-> **Team:** WeWillWin (Abhinav Rai, Karan Aditya, Jai A Mishra) | IIT Guwahati
+# PatientTriage.ai
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](https://streamlit.io/)
-[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
-[![Flutter](https://img.shields.io/badge/Mobile-Flutter-02569B.svg)](https://flutter.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+PatientTriage.ai is an AI-powered Emergency Department (ED) clinical
+decision-support layer designed to optimize patient sequencing and reduce wait
+times without replacing clinical judgment. Operating as a Non-Device Clinical
+Decision Support (CDS) tool, it maintains strict separation between predictive
+risk insights and medical diagnostics.
 
-**PatientTriage.ai** is an AI-powered Emergency Department (ED) clinical decision-support layer designed to optimize patient sequencing and reduce wait times without replacing clinical judgment. Operating as a **Non-Device Clinical Decision Support (CDS)** tool, it maintains strict separation between predictive risk insights and medical diagnostics.
+This project was built for the Accenture Innovation Challenge 2026, Problem
+Track 2 by Team WeWillWin (Abhinav Rai, Karan Aditya, Jai A Mishra from IIT
+Guwahati).
 
----
 
-## 🌟 Core Architectural Principles
+## Table of contents
 
-1. **Asymmetric Risk Optimization (Zero Undertriage)**
-   Missing a critical case is categorically worse than over-prioritizing a minor one. Our machine learning layer utilizes asymmetric loss penalties during XGBoost model training to heavily penalize False Negatives (undertriage).
-   * **Geriatric Agent (65+)**: $\alpha = 23.0$
-   * **Adult Agent (18-64)**: $\alpha = 18.0$
-   * **Pediatric Agent (<18)**: $\alpha = 28.0$
+- Core architectural principles
+- Repository structure
+- Requirements
+- Recommended modules
+- Installation
+- Configuration
+- Troubleshooting
+- FAQ
+- Maintainers
 
-2. **Deterministic Safety Floors (ABCDE Rule Engine)**
-   Predictive ML outputs are strictly bounded by ESI v5 deterministic clinical rule checks. Priority can only be automatically escalated, never downgraded without clinician action:
-   > $$\text{Final\_ESI} = \min(\text{ML\_ESI\_Recommendation}, \text{ABCDE\_ESI\_Floor})$$
 
-3. **Zero-History Resilience**
-   Engineered to gracefully handle realistic ED constraints where over 50% of patients arrive with zero prior medical history.
+## Core architectural principles
 
-4. **Dynamic Two-Stage Architecture**
-   - **Stage 1 (Discrete UI Classification Gate)**: Discrete human-in-the-loop checkpoint displaying ESI level, Tree-Level confidence score, triggered ABCDE safety rules, and SHAP feature contributions.
-   - **Stage 2 (Dynamic Priority Scheduler)**: Continuous Max Heap priority queue where sorting scores update dynamically with waiting time to prevent starvation.
+1. Asymmetric risk optimization (Zero undertriage): Missing a critical case is
+   categorically worse than over-prioritizing a minor one. Our machine learning
+   layer utilizes asymmetric loss penalties during XGBoost model training to
+   heavily penalize False Negatives (undertriage).
+    - Geriatric agent (65+): Penalty 23.0
+    - Adult agent (18-64): Penalty 18.0
+    - Pediatric agent (<18): Penalty 28.0
 
----
+1. Deterministic safety floors (ABCDE rule engine): Predictive ML outputs are
+   strictly bounded by ESI v5 deterministic clinical rule checks. Priority can
+   only be automatically escalated, never downgraded without clinician action.
 
-## 🏗️ Repository Structure
+1. Zero-history resilience: Engineered to gracefully handle realistic ED
+   constraints where over 50% of patients arrive with zero prior medical
+   history.
 
-```text
-📦 AccentureMedicalTriage
- ┣ 📂 web                  # Core AI Engine, Backend API, and Streamlit Dashboard
- ┃ ┣ 📂 patienttriage      # Core Python Package (Rules, Models, Scheduler, Explainability)
- ┃ ┣ 📜 main.py            # Main entry point for CLI, API, UI, and Simulations
- ┃ ┣ 📜 README.md          # Detailed Technical Documentation
- ┃ ┗ 📜 requirements.txt   # Python dependencies
- ┣ 📂 mobile               # Flutter Mobile Client Application (Staff App)
- ┃ ┣ 📂 lib                # Dart codebase
- ┃ ┗ 📜 pubspec.yaml       # Flutter dependencies
- ┗ 📜 README.md            # You are here
-```
+1. Dynamic two-stage architecture:
+    - Stage 1 (Discrete UI classification gate): Discrete human-in-the-loop
+      checkpoint displaying ESI level, Tree-Level confidence score, triggered
+      ABCDE safety rules, and SHAP feature contributions.
+    - Stage 2 (Dynamic priority scheduler): Continuous Max Heap priority queue
+      where sorting scores update dynamically with waiting time to prevent
+      starvation.
 
----
 
-## 🚀 Quick Start Guide
+## Repository structure
 
-### 1. Web Application & AI Engine (Python)
+- web: Core AI engine, backend API, and Streamlit dashboard.
+    - patienttriage: Core Python package (rules, models, scheduler).
+    - main.py: Main entry point for CLI, API, UI, and simulations.
+- mobile: Flutter mobile client application (staff app).
 
-Navigate to the `web` directory to launch the backend or the interactive dashboard.
 
-```bash
-cd web
-pip install -r requirements.txt
-```
+## Requirements
 
-**Run the Interactive Clinical Dashboard (Streamlit)**
-```bash
-python main.py --ui
-```
+This project requires the following environments:
 
-**Run the RESTful API Server (FastAPI)**
-```bash
-python main.py --api
-# API Docs available at: http://localhost:8000/docs
-```
+- [Python 3.10+](https://www.python.org/downloads/)
+- [Flutter](https://flutter.dev/)
 
-**Run Terminal Batch Triage Simulation**
-```bash
-python main.py --simulate
-```
 
-**Run Test Suite**
-```bash
-python main.py --test
-```
+## Recommended modules
 
-### 2. Mobile Application (Flutter)
+No recommended modules.
 
-The `mobile` directory contains the staff-facing mobile application for on-the-go triage management.
 
-```bash
-cd mobile
-flutter pub get
-flutter run
-```
+## Installation
 
----
+1. Navigate to the `web` directory to launch the backend or the interactive
+   dashboard.
+1. Install Python dependencies:
+   `pip install -r requirements.txt`
+1. Navigate to the `mobile` directory for the staff-facing mobile application.
+1. Install Flutter dependencies:
+   `flutter pub get`
 
-## 🤖 Machine Learning Algorithms: Asymmetric XGBoost
 
-The predictive engine uses **XGBoost** (Extreme Gradient Boosting), chosen for its high accuracy on tabular physiological data and native support for SHAP explainability. To ensure patient safety, we designed a **custom asymmetric logistic loss function**.
+## Configuration
 
-### The Custom Asymmetric Objective
-In clinical triage, False Negatives (undertriage of a critical patient) are significantly more dangerous than False Positives (overtriage). Our custom objective function mathematically forces the model to heavily penalize False Negatives using a scaling factor, $\alpha$:
+Run the web application and AI engine:
 
-> $$ \text{Gradient} = p \cdot (\alpha \cdot y + \beta \cdot (1 - y)) - \alpha \cdot y $$
-> $$ \text{Hessian} = p \cdot (1 - p) \cdot (\alpha \cdot y + \beta \cdot (1 - y)) $$
+- Interactive clinical dashboard (Streamlit): `python main.py --ui`
+- RESTful API server (FastAPI): `python main.py --api`
+- Terminal batch triage simulation: `python main.py --simulate`
+- Test suite: `python main.py --test`
 
-### Demographic-Calibrated Models
-Instead of a single generalized model, the architecture routes patients to one of three age-stratified XGBoost agents, each calibrated with a unique $\alpha$ penalty and feature set:
+Run the mobile application:
 
-1. **Geriatric Agent (Age 65+)**
-   - **Penalty ($\alpha$)**: `23.0`
-   - **Features**: Vital signs, comorbidities, prior history, and importantly, the **Clinical Frailty Scale (CFS)** score.
-   - **Rationale**: Elderly patients often present atypically. A high penalty and frailty tracking suppress undertriage.
+- In the `mobile` directory: `flutter run`
 
-2. **Adult Agent (Age 18-64)**
-   - **Penalty ($\alpha$)**: `18.0`
-   - **Features**: Standard ED physiological vitals and history.
-   - **Rationale**: Balances acute derangement detection against resource-wasting overtriage.
 
-3. **Pediatric Agent (Age <18)**
-   - **Penalty ($\alpha$)**: `28.0`
-   - **Features**: Continuous age, vitals, and history.
-   - **Rationale**: Pediatric vitals change rapidly and have different baselines depending on age. Carries the highest penalty multiplier due to rapid decompensation risks.
+## Troubleshooting
 
-*(Hyperparameters: `max_depth=4` for shallow, highly interpretable trees; `learning_rate=0.01` to prevent overfitting; `threshold=0.504`)*
+If the application does not load or you encounter issues during installation or
+execution, check the following:
 
----
+- Are the correct versions of Python and Flutter installed?
+- Have all dependencies in `requirements.txt` and `pubspec.yaml` been
+  successfully resolved?
 
-## 🧠 Technical Deep Dive: The Priority Scheduler
 
-To prevent patient starvation (where lower-acuity patients wait indefinitely), our Stage 2 Priority Scheduler recalculates positions continuously using a time-decaying logarithmic function:
+## FAQ
 
-$$
-\text{Priority Score}(t) = W_{\text{floor}} \cdot (6 - \text{ESI}_{\text{final}}) + W_{\text{risk}} \cdot P_{\text{risk}} + W_{\text{time}} \cdot \ln\left(1 + \frac{t_{\text{wait}}}{\tau}\right)
-$$
+**Q: What machine learning algorithms are used?**
 
-| Weight | Value | Purpose |
-|---|---|---|
-| $W_{\text{floor}}$ | 1000 | Heavily weights the ESI base class |
-| $W_{\text{risk}}$ | 100 | Granularly ranks patients within the same ESI |
-| $W_{\text{time}}$ | 15 (Normal) / 30 (Surge) | Gradually elevates priority based on waiting time |
-| $\tau$ | 30 | Time constant for logarithmic scaling |
+**A:** The predictive engine uses XGBoost (Extreme Gradient Boosting), chosen
+for its high accuracy on tabular physiological data and native support for SHAP
+explainability. To ensure patient safety, we designed a custom asymmetric
+logistic loss function.
 
----
+**Q: How does the custom asymmetric objective work?**
 
-## 🛡️ Governance, Compliance, & Explainability
+**A:** In clinical triage, False Negatives (undertriage of a critical patient)
+are significantly more dangerous than False Positives (overtriage). Our custom
+objective function mathematically forces the model to heavily penalize False
+Negatives using a scaling factor.
 
-- **Explainable AI (XAI)**: SHAP TreeExplainer extraction visually breaks down the physiological factors driving risk for every single patient.
-- **Audit Trails**: Every manual override by a triage nurse is logged with clinician ID, timestamp, and rationale.
-- **Hallucination Rejection**: Dedicated grounding validators ensure that structured JSON claims mathematically match SHAP attributions and raw physiological vitals before UI presentation.
+**Q: How does the priority scheduler work?**
 
----
+**A:** To prevent patient starvation (where lower-acuity patients wait
+indefinitely), our Stage 2 priority scheduler recalculates positions
+continuously using a time-decaying logarithmic function.
 
-*Built with ❤️ for the Accenture Innovation Challenge 2026*
+
+## Maintainers
+
+- Abhinav Rai
+- Karan Aditya
+- Jai A Mishra
