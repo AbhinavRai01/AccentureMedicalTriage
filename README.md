@@ -15,6 +15,7 @@ Guwahati).
 
 - Core architectural principles
 - Machine learning models
+- Screenshots
 - Repository structure
 - Requirements
 - Recommended modules
@@ -96,6 +97,23 @@ calibrated with a unique penalty ($\alpha$) and a specialized feature set:
 `learning_rate=0.01` to prevent overfitting; `threshold=0.504`.
 
 
+## Screenshots
+
+![Screenshot 1](images/Screenshot%202026-09-02%20183247.png)
+
+![Screenshot 2](images/Screenshot%202026-09-02%20183349.png)
+
+![Screenshot 3](images/Screenshot%202026-09-02%20183424.png)
+
+![Screenshot 4](images/Screenshot%202026-09-02%20183513.png)
+
+![Screenshot 5](images/Screenshot%202026-09-02%20183543.png)
+
+![Screenshot 6](images/Screenshot%202026-09-02%20204914.png)
+
+![Screenshot 7](images/Screenshot%202026-09-02%20204948.png)
+
+
 ## Repository structure
 
 - web: Core AI engine, backend API, and Streamlit dashboard.
@@ -174,3 +192,4 @@ SHAP attributions before UI presentation.
 - Abhinav Rai
 - Karan Aditya
 - Jai A Mishra
+
