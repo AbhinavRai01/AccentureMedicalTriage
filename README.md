@@ -14,6 +14,7 @@ Guwahati).
 ## Table of contents
 
 - Core architectural principles
+- Machine learning models
 - Repository structure
 - Requirements
 - Recommended modules
@@ -30,9 +31,6 @@ Guwahati).
    categorically worse than over-prioritizing a minor one. Our machine learning
    layer utilizes asymmetric loss penalties during XGBoost model training to
    heavily penalize False Negatives (undertriage).
-    - Geriatric agent (65+): Penalty 23.0
-    - Adult agent (18-64): Penalty 18.0
-    - Pediatric agent (<18): Penalty 28.0
 
 1. Deterministic safety floors (ABCDE rule engine): Predictive ML outputs are
    strictly bounded by ESI v5 deterministic clinical rule checks. Priority can
@@ -49,6 +47,53 @@ Guwahati).
     - Stage 2 (Dynamic priority scheduler): Continuous Max Heap priority queue
       where sorting scores update dynamically with waiting time to prevent
       starvation.
+
+
+## Machine learning models
+
+The predictive engine is the core of PatientTriage.ai and relies on **XGBoost
+(Extreme Gradient Boosting)**. It was chosen for its exceptional accuracy on
+tabular physiological data and its native support for SHAP explainability. 
+
+### The custom asymmetric objective
+
+In clinical triage, False Negatives (undertriage of a critical patient) are
+significantly more dangerous than False Positives (overtriage). To ensure
+uncompromising patient safety, we designed a custom asymmetric logistic loss
+function. This objective mathematically forces the model to heavily penalize
+False Negatives using a scaling factor, alpha ($\alpha$):
+
+- **Gradient**: $p \cdot (\alpha \cdot y + \beta \cdot (1 - y)) - \alpha \cdot y$
+- **Hessian**: $p \cdot (1 - p) \cdot (\alpha \cdot y + \beta \cdot (1 - y))$
+
+### Demographic-calibrated models
+
+Instead of relying on a single generalized model, the architecture intelligently
+routes patients to one of three age-stratified XGBoost agents. Each agent is
+calibrated with a unique penalty ($\alpha$) and a specialized feature set:
+
+1. **Geriatric agent (Age 65+)**
+   - **Penalty ($\alpha$)**: `23.0`
+   - **Features**: Vital signs, comorbidities, prior history, and importantly,
+     the Clinical Frailty Scale (CFS) score.
+   - **Rationale**: Elderly patients often present atypically. A high penalty
+     and frailty tracking suppress undertriage.
+
+1. **Adult agent (Age 18-64)**
+   - **Penalty ($\alpha$)**: `18.0`
+   - **Features**: Standard ED physiological vitals and history.
+   - **Rationale**: Balances acute derangement detection against resource-wasting
+     overtriage.
+
+1. **Pediatric agent (Age <18)**
+   - **Penalty ($\alpha$)**: `28.0`
+   - **Features**: Continuous age, vitals, and history.
+   - **Rationale**: Pediatric vitals change rapidly and have different baselines
+     depending on age. Carries the highest penalty multiplier due to rapid
+     decompensation risks.
+
+*Model hyperparameters*: `max_depth=4` for shallow, highly interpretable trees;
+`learning_rate=0.01` to prevent overfitting; `threshold=0.504`.
 
 
 ## Repository structure
@@ -109,25 +154,19 @@ execution, check the following:
 
 ## FAQ
 
-**Q: What machine learning algorithms are used?**
-
-**A:** The predictive engine uses XGBoost (Extreme Gradient Boosting), chosen
-for its high accuracy on tabular physiological data and native support for SHAP
-explainability. To ensure patient safety, we designed a custom asymmetric
-logistic loss function.
-
-**Q: How does the custom asymmetric objective work?**
-
-**A:** In clinical triage, False Negatives (undertriage of a critical patient)
-are significantly more dangerous than False Positives (overtriage). Our custom
-objective function mathematically forces the model to heavily penalize False
-Negatives using a scaling factor.
-
 **Q: How does the priority scheduler work?**
 
 **A:** To prevent patient starvation (where lower-acuity patients wait
 indefinitely), our Stage 2 priority scheduler recalculates positions
 continuously using a time-decaying logarithmic function.
+
+
+**Q: How is model governance and explainability handled?**
+
+**A:** Explainable AI (XAI) using SHAP TreeExplainer extraction visually breaks
+down the physiological factors driving risk for every single patient. Dedicated
+grounding validators ensure that structured JSON claims mathematically match
+SHAP attributions before UI presentation.
 
 
 ## Maintainers
